@@ -1,5 +1,9 @@
 //import glMatrix as "./glMatrix/dist/gl-matrix-min.js"
 
+THREE.Math.lerp = function (a,  b,  c) {
+    return a + c * (b - a);
+}
+
 var Engine = {
 	util: {
 	},
@@ -10,13 +14,6 @@ var Engine = {
 		canvas.setAttribute("width",width);
 		canvas.setAttribute("height",height);
 		
-		/*const gl = canvas.getContext("webgl");
-		
-		if (gl === null) {
-			alert("Unable to initialize WebGL. Your browser or machien may not support it.");
-			return;
-		}*/
-		
 		var scene = new THREE.Scene();
 		var camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 1000);
 		var renderer = new THREE.WebGLRenderer( {
@@ -25,17 +22,6 @@ var Engine = {
 		});
 		
 	renderer.setSize( width, height );
-		
-		/*var mat = new THREE.MeshPhongMaterial( {
-       color: 0x0088aa, 
-       specular: 0x003344, 
-       shininess: 100,
-       flatShading: true,  // for flat-looking sides
-       side: THREE.DoubleSide  // for drawing the inside of the tube
-    } );
-var geom = new THREE.CylinderGeometry(3,3,10,5,1,true);
-var obj = new THREE.Mesh(geom,mat);
-scene.add(obj);*/
 
 	var light = new THREE.AmbientLight( 0x404040 ); // soft white light
 	scene.add( light );
@@ -59,13 +45,23 @@ scene.add(obj);*/
 	
 	var clicked = false;
 	
-	var px,py,qx,qy;
+	var currRotX = 0;
+	var currRotY = 0;
+	var px,pxh,py,pyh,qx,qxh,qy,qyh;
+	var inertia = new THREE.Vector3(0.0,0.0,0.0);
+	var inertiaFromMouse = new THREE.Vector3(0.0,0.0,0.0);
+	var inertiaFromSpin = new THREE.Vector3(0.0,0.0,0.0);
+	/*var targetRotationX = 0.5;
+    var targetRotationOnMouseDownX = 0;
+    var targetRotationY = 0.2;
+    var targetRotationOnMouseDownY = 0;*/
 	var mouseMove = function(e) {
+		//every time mouse moves, set clicked to true and update 2nd mouse pos
 		clicked = true;
 		qx = e.clientX;
+		qxh = qx - window.innerWidth/2;
 		qy = e.clientY;
-		cube.rotation.x = px-qx;
-		cube.rotation.y = py-qy;
+		qyh = qy - window.innerHeight/2;
 	};
 	var mouseUp = function(e) {
 		console.log("mouseup");
@@ -75,27 +71,71 @@ scene.add(obj);*/
 	var mouseDown = function(e) {
 		px = e.clientX;
 		py = e.clientY;
+		pxh = px-window.innerWidth;
+		pyh = py-window.innerHeight;
 		clicked = true;
 		document.addEventListener("mousemove",mouseMove);
 	};
 	document.addEventListener("mousedown",mouseDown);
 	document.addEventListener("mouseup",mouseUp);
 	
+	//From Opher Vishnia
+	function rotateAroundWorldAxis( object, axis, radians ) {
+        var rotationMatrix = new THREE.Matrix4();
+
+        rotationMatrix.makeRotationAxis( axis.normalize(), radians );
+        rotationMatrix.multiply( object.matrix );                       // pre-multiply
+        object.matrix = rotationMatrix;
+        object.rotation.setFromRotationMatrix( object.matrix );
+	}
 	
-		
 	let i=0;
 	let n = 720;
+	var inertiaSlow = 0.96;
 	var animate = function() {
 		requestAnimationFrame( animate );
-		//if (clicked) {
-			cube.rotation.y += Math.cos(i/50)/20;
+		
+		//Normal action if mouse is not clicked
+		if (!clicked) {
+			console.log(inertiaFromMouse);
+			if (Math.sqrt(Math.pow(inertiaFromMouse.x,2) + Math.pow(inertiaFromMouse.y,2)) >= 0.005)
+				inertiaFromMouse.multiplyScalar(inertiaSlow);
+			else
+				inertiaFromMouse.roundToZero();
+			inertiaFromSpin.y = Math.cos(i/50)/20;
+			inertiaFromSpin.x = Math.sin(i/50)/65;
+			/*cube.rotation.y += Math.cos(i/50)/20;
 			cube.rotation.z += 0.005;
-			cube.rotation.x = 0.6+Math.sin(i/500)/65;
+			cube.rotation.x += Math.sin(i/500)/65;*/
 			cube.material.color.r += (i/(n*10));
 			cube.material.color.b -= (i/(n*5));
-			//cube.rotation.y += 0.01;
 			i = (i >= n) ? 0 : i+1;
-		//}
+		}
+		//If mouse is clicked
+		else {
+			//console.log(currRotX);
+			inertiaFromMouse.add(new THREE.Vector3((qx-px)/10000, (qy-py)/10000));
+			//inertia.add(new THREE.Vector3((qx-px)/10000, (qy-py)/10000));
+			
+			//rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), (qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));
+			//rotateAroundWorldAxis(cube, new THREE.Vector3(1,0,0), (qy-py)/10000);//THREE.Math.lerp(currRotY, qy-py, 0.05));
+			//var rot = cube.rotation.toVector3();
+			//var mouse = new THREE.Vector3(px-qx,py-qy,0.0);
+			//var crossProd = new THREE.Vector3();
+			//crossProd.crossVectors(rot,mouse);
+			//rot.applyAxisAngle(crossProd, rot.angleTo(mouse));
+			//cube.rotation.x = qx-px/10000;//rot.x/100%(2*Math.PI);
+			//console.log(cube.rotation);
+		}
+		inertia.addVectors(inertiaFromMouse,inertiaFromSpin);
+		console.log(inertia);
+		if (!inertia.equals(new THREE.Vector3(0,0,0))) {
+			rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), inertia.x);//(qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));
+			rotateAroundWorldAxis(cube, new THREE.Vector3(1,0,0), inertia.y);//(qy-py)/10000);//THREE.Math.lerp(currRotY, qy-py, 0.05));
+		}
+		currRotX = cube.rotation.x;
+		currRotY = cube.rotation.y;
+		//console.log(cube.rotation);
 		renderer.render( scene, camera );
 	}
 	animate();

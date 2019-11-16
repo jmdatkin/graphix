@@ -103,8 +103,8 @@ var Engine = {
 			else
 				inertiaFromMouse.roundToZero();
 			let r = (i/n*2*Math.PI);
-			inertiaFromSpin.y = Math.sin(r/40)/20;
-			inertiaFromSpin.x = Math.sin(r/50-3)/20;
+			inertiaFromSpin.y = Math.sin(r)/40;
+			inertiaFromSpin.x = Math.sin(r-3)/40;
 			/*cube.rotation.y += Math.cos(i/50)/20;
 			cube.rotation.z += 0.005;
 			cube.rotation.x += Math.sin(i/500)/65;*/

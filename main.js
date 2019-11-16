@@ -41,7 +41,7 @@ var Engine = {
 
 	camera.position.z = 5;
 	
-	cube.rotation.x = 0.2;
+	//cube.rotation.x = 0.2;
 	
 	var clicked = false;
 	
@@ -97,14 +97,14 @@ var Engine = {
 		
 		//Normal action if mouse is not clicked
 		if (!clicked) {
-			console.log(inertiaFromMouse);
+			//console.log(inertiaFromMouse);
 			if (Math.sqrt(Math.pow(inertiaFromMouse.x,2) + Math.pow(inertiaFromMouse.y,2)) >= 0.005)
 				inertiaFromMouse.multiplyScalar(inertiaSlow);
 			else
 				inertiaFromMouse.roundToZero();
 			let r = (i/n*2*Math.PI);
-			inertiaFromSpin.y = Math.cos(r/50)/20;
-			inertiaFromSpin.x = Math.sin(r/50)/65;
+			inertiaFromSpin.y = Math.sin(r/40)/20;
+			inertiaFromSpin.x = Math.sin(r/50-3)/20;
 			/*cube.rotation.y += Math.cos(i/50)/20;
 			cube.rotation.z += 0.005;
 			cube.rotation.x += Math.sin(i/500)/65;*/

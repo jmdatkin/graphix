@@ -8,5 +8,7 @@ function main() {
 	}
 	
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.clear(g1.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT);
 }
+
+window.onload = main;

@@ -108,8 +108,9 @@ var Engine = {
 			/*cube.rotation.y += Math.cos(i/50)/20;
 			cube.rotation.z += 0.005;
 			cube.rotation.x += Math.sin(i/500)/65;*/
-			cube.material.color.r += (i/(n*10));
-			cube.material.color.b -= (i/(n*5));
+			cube.material.color.r = 0.5+(Math.cos(r)*10)/2;
+			cube.material.color.b = 0.5+(Math.sin(r)*10)/2;
+			cube.material.color.g = 0.5+(Math.pow(Math.cos(r),2)*10)/2;
 			i = (i >= n) ? 0 : i+1;
 		}
 		//If mouse is clicked

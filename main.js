@@ -91,7 +91,7 @@ var Engine = {
 	
 	let i=0;
 	let n = 720;
-	var inertiaSlow = 0.96;
+	var inertiaSlow = 0.93;
 	var animate = function() {
 		requestAnimationFrame( animate );
 		

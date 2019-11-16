@@ -39,9 +39,14 @@ scene.add(obj);*/
 
 	var light = new THREE.AmbientLight( 0x404040 ); // soft white light
 	scene.add( light );
+	var point = new THREE.PointLight( 0x222222 );
+	point.position.set(5,0,7);
+	point.power = 30;
+	point.size = 50;
+	scene.add(point);
 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	var material = new THREE.MeshPhongMaterial( {
-		color: 0x00ff00,
+	var material = new THREE.MeshStandardMaterial( {
+		color: 0x88ffff,
         specular: 0x003344, 
         flatShading: true,
 		shininess: 100, } );
@@ -51,14 +56,46 @@ scene.add(obj);*/
 	camera.position.z = 5;
 	
 	cube.rotation.x = 0.2;
+	
+	var clicked = false;
+	
+	var px,py,qx,qy;
+	var mouseMove = function(e) {
+		clicked = true;
+		qx = e.clientX;
+		qy = e.clientY;
+		cube.rotation.x = px-qx;
+		cube.rotation.y = py-qy;
+	};
+	var mouseUp = function(e) {
+		console.log("mouseup");
+		clicked = false;
+		document.removeEventListener("mousemove",mouseMove);
+	};
+	var mouseDown = function(e) {
+		px = e.clientX;
+		py = e.clientY;
+		clicked = true;
+		document.addEventListener("mousemove",mouseMove);
+	};
+	document.addEventListener("mousedown",mouseDown);
+	document.addEventListener("mouseup",mouseUp);
+	
+	
 		
 	let i=0;
+	let n = 720;
 	var animate = function() {
 		requestAnimationFrame( animate );
-		cube.rotation.y += Math.cos(Math.PI*i/180/3);
-		cube.material.color.r = i/3610;
-		//cube.rotation.y += 0.01;
-		i = (i >= 360) ? 0 : i+1;
+		//if (clicked) {
+			cube.rotation.y += Math.cos(i/50)/20;
+			cube.rotation.z += 0.005;
+			cube.rotation.x = 0.6+Math.sin(i/500)/65;
+			cube.material.color.r += (i/(n*10));
+			cube.material.color.b -= (i/(n*5));
+			//cube.rotation.y += 0.01;
+			i = (i >= n) ? 0 : i+1;
+		//}
 		renderer.render( scene, camera );
 	}
 	animate();

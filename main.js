@@ -45,12 +45,11 @@ var Engine = {
 	
 	var clicked = false;
 	
-	var currRotX = 0;
-	var currRotY = 0;
+	var ix, iy;
 	var px,pxh,py,pyh,qx,qxh,qy,qyh;
-	var inertia = new THREE.Vector3(0.0,0.0,0.0);
-	var inertiaFromMouse = new THREE.Vector3(0.0,0.0,0.0);
-	var inertiaFromSpin = new THREE.Vector3(0.0,0.0,0.0);
+	var inertia = new THREE.Vector2(0.0,0.0);
+	var inertiaFromMouse = new THREE.Vector2(0.0,0.0);
+	var inertiaFromSpin = new THREE.Vector2(0.0,0.0);
 	/*var targetRotationX = 0.5;
     var targetRotationOnMouseDownX = 0;
     var targetRotationY = 0.2;
@@ -63,17 +62,22 @@ var Engine = {
 		qxh = qx - window.innerWidth/2;
 		qy = (e.touches === undefined) ? e.clientY : e.touches[0].clientY;
 		qyh = qy - window.innerHeight/2;
-		//console.log("touch pos: x: "+e.clientX+", y: "+e.clientY);
+		//consol-e.log("touch pos: x: "+e.clientX+", y: "+e.clientY);
 	};
 	var mouseUp = function(e) {
+		px = py = qx = qy = ix = iy = 0;
 		console.log("mouseup");
 		clicked = false;
 		document.removeEventListener("touchmove",mouseMove);
 		document.removeEventListener("mousemove",mouseMove);
 	};
 	var mouseDown = function(e) {
-		px = (e.touches === undefined) ? e.clientX : e.touches[0].clientX;
-		py = (e.touches === undefined) ? e.clientY : e.touches[0].clientY;
+		inertia.set(0,0,0);
+		inertiaFromSpin.set(0,0,0);
+		inertiaFromMouse.set(0,0,0);
+		//qx = qy = ix = iy = 0;
+		qx = px = (e.touches === undefined) ? e.clientX : e.touches[0].clientX;
+		qy = py = (e.touches === undefined) ? e.clientY : e.touches[0].clientY;
 		pxh = px-window.innerWidth;
 		pyh = py-window.innerHeight;
 		clicked = true;
@@ -123,24 +127,25 @@ var Engine = {
 		}
 		//If mouse is clicked
 		else {
+			inertiaFromSpin.roundToZero();
 			//console.log(currRotX);
-			mouseInputScalar = ('ontouchstart' in document.documentElement) ? 1/100000 : 1/10000;
-			inertiaFromMouse.add(new THREE.Vector3((qx-px)*mouseInputScalar, (qy-py)*mouseInputScalar));
-			//inertia.add(new THREE.Vector3((qx-px)/10000, (qy-py)/10000));
+			mouseInputScalar = 1/10000;//('ontouchstart' in document.documentElement) ? 1/100000 : 1/10000;
 			
-			//rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), (qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));
-			//rotateAroundWorldAxis(cube, new THREE.Vector3(1,0,0), (qy-py)/10000);//THREE.Math.lerp(currRotY, qy-py, 0.05));
-			//var rot = cube.rotation.toVector3();
-			//var mouse = new THREE.Vector3(px-qx,py-qy,0.0);
-			//var crossProd = new THREE.Vector3();
-			//crossProd.crossVectors(rot,mouse);
-			//rot.applyAxisAngle(crossProd, rot.angleTo(mouse));
-			//cube.rotation.x = qx-px/10000;//rot.x/100%(2*Math.PI);
-			//console.log(cube.rotation);
+			//console.log("qx-ix: "+(qx-ix));
+			//console.log(new THREE.Vector3((qx-ix)*mouseInputScalar, (qy-iy)*mouseInputScalar));
+			
+			inertiaFromMouse.add(new THREE.Vector2((qx-px)*mouseInputScalar, (qy-py)*mouseInputScalar));
+			
+			console.log(inertiaFromMouse);
+			console.log("x: "+(qx-ix)+", y: "+(qy-iy));
+			
+			ix = qx;
+			iy = qy;
+			
 		}
 		inertia.addVectors(inertiaFromMouse,inertiaFromSpin);
 		//console.log(inertia);
-		if (!inertia.equals(new THREE.Vector3(0,0,0))) {
+		if (!inertia.equals(new THREE.Vector2(0,0))) {
 			rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), inertia.x);//(qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));
 			rotateAroundWorldAxis(cube, new THREE.Vector3(1,0,0), inertia.y);//(qy-py)/10000);//THREE.Math.lerp(currRotY, qy-py, 0.05));
 		}

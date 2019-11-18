@@ -66,7 +66,7 @@ var Engine = {
 	var mouseUp = function(e) {
 		console.log("mouseup");
 		clicked = false;
-		document.removeEventListener("mousemove",mouseMove);
+		document.removeEventListener("touchmove",mouseMove);
 	};
 	var mouseDown = function(e) {
 		px = e.clientX;
@@ -76,8 +76,9 @@ var Engine = {
 		clicked = true;
 		document.addEventListener("mousemove",mouseMove);
 	};
-	document.addEventListener("mousedown",mouseDown);
-	document.addEventListener("mouseup",mouseUp);
+	//document.addEventListener("mousedown",mouseDown);
+	document.addEventListener("touchstart",mouseDown);
+	document.addEventListener("touchend",mouseUp);
 	
 	//From Opher Vishnia
 	function rotateAroundWorldAxis( object, axis, radians ) {

@@ -124,7 +124,8 @@ var Engine = {
 		//If mouse is clicked
 		else {
 			//console.log(currRotX);
-			inertiaFromMouse.add(new THREE.Vector3((qx-px)/10000, (qy-py)/10000));
+			mouseInputScalar = ('ontouchstart' in document.documentElement) ? 1/100000 : 1/10000;
+			inertiaFromMouse.add(new THREE.Vector3((qx-px)*mouseInputScalar, (qy-py)*mouseInputScalar));
 			//inertia.add(new THREE.Vector3((qx-px)/10000, (qy-py)/10000));
 			
 			//rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), (qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));

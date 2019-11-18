@@ -57,28 +57,35 @@ var Engine = {
     var targetRotationOnMouseDownY = 0;*/
 	var mouseMove = function(e) {
 		//every time mouse moves, set clicked to true and update 2nd mouse pos
+		console.log("mouse moved");
 		clicked = true;
-		qx = e.clientX;
+		qx = (e.touches === undefined) ? e.clientX : e.touches[0].clientX;
 		qxh = qx - window.innerWidth/2;
-		qy = e.clientY;
+		qy = (e.touches === undefined) ? e.clientY : e.touches[0].clientY;
 		qyh = qy - window.innerHeight/2;
+		//console.log("touch pos: x: "+e.clientX+", y: "+e.clientY);
 	};
 	var mouseUp = function(e) {
 		console.log("mouseup");
 		clicked = false;
 		document.removeEventListener("touchmove",mouseMove);
+		document.removeEventListener("mousemove",mouseMove);
 	};
 	var mouseDown = function(e) {
-		px = e.clientX;
-		py = e.clientY;
+		px = (e.touches === undefined) ? e.clientX : e.touches[0].clientX;
+		py = (e.touches === undefined) ? e.clientY : e.touches[0].clientY;
 		pxh = px-window.innerWidth;
 		pyh = py-window.innerHeight;
 		clicked = true;
+		console.log("mousedown");
+		document.addEventListener("touchmove",mouseMove);
 		document.addEventListener("mousemove",mouseMove);
 	};
 	//document.addEventListener("mousedown",mouseDown);
 	document.addEventListener("touchstart",mouseDown);
+	document.addEventListener("mousedown",mouseDown);
 	document.addEventListener("touchend",mouseUp);
+	document.addEventListener("mouseup",mouseUp);
 	
 	//From Opher Vishnia
 	function rotateAroundWorldAxis( object, axis, radians ) {
@@ -131,7 +138,7 @@ var Engine = {
 			//console.log(cube.rotation);
 		}
 		inertia.addVectors(inertiaFromMouse,inertiaFromSpin);
-		console.log(inertia);
+		//console.log(inertia);
 		if (!inertia.equals(new THREE.Vector3(0,0,0))) {
 			rotateAroundWorldAxis(cube, new THREE.Vector3(0,1,0), inertia.x);//(qx-px)/10000);//THREE.Math.lerp(currRotX, qx-px, 0.05));
 			rotateAroundWorldAxis(cube, new THREE.Vector3(1,0,0), inertia.y);//(qy-py)/10000);//THREE.Math.lerp(currRotY, qy-py, 0.05));
